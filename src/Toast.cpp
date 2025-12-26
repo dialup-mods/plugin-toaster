@@ -16,6 +16,8 @@
 
 class Toaster : public IToaster {
     AIM_INJECTABLE(Toaster)
+    AIM_INJECT(ILogger, log)
+
     void toast(std::string title, std::string body) override {
         printf("Toaster toast called\n");
         printf("    %s - %s", title.c_str(), body.c_str());
@@ -28,14 +30,22 @@ class Toast : public PluginBase<Toast> {
   public:
     ~Toast() override = default;
     [[nodiscard]] auto getName() const -> const char* override { return "Toaster"; }
+
     void startup() override {
         printf("Toaster startup called\n");
+        registerModule(
+            ModuleDefinition<Toaster>()
+                .withDependency(&Toaster::__inject_log, "[default]")
+                .asSingleton()
+        );
+        setPluginReady();
     };
 
     auto registerPublicInterfaces() const -> std::vector<PublicInterface> override {
-        return {};
-        //    expose<IToaster>(resolve<Toaster>() )
-        //};
+        printf("registering IToaster\n");
+        return {
+            expose<IToaster>(resolve<Toaster>() )
+        };
     }
 
     void shutdown() override {
