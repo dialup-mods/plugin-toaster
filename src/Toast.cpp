@@ -20,6 +20,7 @@ class Toaster final : public IToaster {
     AIM_INJECTABLE(Toaster)
     AIM_INJECT(ILogger, log)
     AIM_INJECT(IProcessEvent, processEvent)
+    AIM_INJECT(ITaskBuilder, taskBuilder)
 
     void toast(const std::string title, const std::string body) override {
         printf("Toaster toast called\n");
@@ -50,38 +51,36 @@ class Toast : public PluginBase<Toast> {
         const auto processEvent = getResolver()->resolve<IProcessEvent>();
         const auto taskBuilder = getResolver()->resolve<ITaskBuilder>();
 
-        printf("builder ok\n");
-
         auto task = taskBuilder
             ->name("Toast")
-            .functionName("Function Engine.Interaction.Tick")
+            .functionName("Function TAGame.GFxData_NotificationManager_TA.GetNotificationRowIndex")
             .phase(HookPhase::Post)
             .callback([](InvocationContext&) {
                 printf("callback\n");
             })
             .build();
 
-        printf("build ok: %p\n", task.get());
-
+        printf("TOAST task: %s\n", task->describe().c_str());
         processEvent->registerTask(task);
         printf("register ok\n");
 
 
-        //registerModule(
-        //ModuleDefinition<Toaster>()
-        //.withFactory([processEvent, taskBuilder]() {
-        //    auto t = std::make_shared<Toaster>();
-        //    t->__inject_processEvent(processEvent);
-        //    t->__inject_taskBuilder(taskBuilder);
-        //    return t;
-        //})
-        //.asSingleton()
-        //);
+        registerModule(
+        ModuleDefinition<Toaster>()
+        .withFactory([](Resolver& r) {
+            auto t = std::make_shared<Toaster>();
+            t->__inject_processEvent(r.resolve<IProcessEvent>());
+            t->__inject_taskBuilder(r.resolve<ITaskBuilder>());
+            return t;
+        })
+        .asSingleton()
+        );
 
         setPluginReady();
     };
 
     auto registerPublicInterfaces() const -> std::vector<PublicInterface> override {
+        printf("called register from toast\n");
         return {
             expose<IToaster>(resolve<Toaster>() )
         };
