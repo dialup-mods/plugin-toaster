@@ -13,12 +13,15 @@
 #include "IToaster.h"
 #include "SDK.h"
 #include "IProcessEvent.h"
+#include "ITaskBuilder.h"
 
-class Toaster : public IToaster {
+
+class Toaster final : public IToaster {
     AIM_INJECTABLE(Toaster)
     AIM_INJECT(ILogger, log)
+    AIM_INJECT(IProcessEvent, processEvent)
 
-    void toast(std::string title, std::string body) override {
+    void toast(const std::string title, const std::string body) override {
         printf("Toaster toast called\n");
         printf("    %s - %s", title.c_str(), body.c_str());
     }
@@ -33,16 +36,52 @@ class Toast : public PluginBase<Toast> {
 
     void startup() override {
         printf("Toaster startup called\n");
-        registerModule(
-            ModuleDefinition<Toaster>()
-                .withDependency(&Toaster::__inject_log, "[default]")
-                .asSingleton()
-        );
+
+        //registerInstance<IProcessEvent>(processEvent);
+        //processEvent->registerTask(taskBuilder->create()->
+        //    name("Toast")
+        //    .functionName("Function Engine.Interaction.Tick")
+        //    .phase(HookPhase::Post)
+        //    .callback([this](InvocationContext& ctx) {
+        //        printf("callback\n");
+        //    })
+        //    .build());
+
+        const auto processEvent = getResolver()->resolve<IProcessEvent>();
+        const auto taskBuilder = getResolver()->resolve<ITaskBuilder>();
+
+        printf("builder ok\n");
+
+        auto task = taskBuilder
+            ->name("Toast")
+            .functionName("Function Engine.Interaction.Tick")
+            .phase(HookPhase::Post)
+            .callback([](InvocationContext&) {
+                printf("callback\n");
+            })
+            .build();
+
+        printf("build ok: %p\n", task.get());
+
+        processEvent->registerTask(task);
+        printf("register ok\n");
+
+
+        //registerModule(
+        //ModuleDefinition<Toaster>()
+        //.withFactory([processEvent, taskBuilder]() {
+        //    auto t = std::make_shared<Toaster>();
+        //    t->__inject_processEvent(processEvent);
+        //    t->__inject_taskBuilder(taskBuilder);
+        //    return t;
+        //})
+        //.asSingleton()
+        //);
+
         setPluginReady();
     };
 
     auto registerPublicInterfaces() const -> std::vector<PublicInterface> override {
-        printf("registering IToaster\n");
         return {
             expose<IToaster>(resolve<Toaster>() )
         };
@@ -68,3 +107,16 @@ extern "C" __declspec(dllexport) void
 destroy() {
     MessageBoxA(nullptr, "Plugin destroyed!", "Test Plugin", MB_OK | MB_ICONINFORMATION);
 }
+
+//template<typename T, typename... Deps>
+//void registerComposedSingleton(Deps&&... deps) {
+//    registerModule(
+//        ModuleDefinition<T>()
+//            .withFactory([=] {
+//                auto obj = std::make_shared<T>();
+//                (obj->*deps)...; // conceptually — see below
+//                return obj;
+//            })
+//            .asSingleton()
+//    );
+//}

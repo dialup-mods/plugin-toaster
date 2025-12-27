@@ -54,6 +54,7 @@ set(INCLUDES
 	${CMAKE_SOURCE_DIR}/src
 	${CMAKE_SOURCE_DIR}/include
     $ENV{LOCALAPPDATA}/DialUpFramework/include
+	$ENV{LOCALAPPDATA}/DialUpFramework/plugin/AIM/include
 )
 
 dialup_setup_plugin(${PROJECT_NAME}
