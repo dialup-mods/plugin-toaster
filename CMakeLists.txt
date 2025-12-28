@@ -1,66 +1,52 @@
 cmake_minimum_required(VERSION 4.0)
 
-project(Toast VERSION 1.0)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_SYSTEM_NAME Windows)
-set(CMAKE_SYSTEM_PROCESSOR x86_64)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-set(CMAKE_C_COMPILER "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" CACHE FILEPATH "C Compiler" FORCE)
-set(CMAKE_CXX_COMPILER "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" CACHE FILEPATH "C++ Compiler" FORCE)
-set(CMAKE_LINKER "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe" CACHE FILEPATH "Linker" FORCE)
-
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "" FORCE)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # `/MD`
-set(CMAKE_GENERATOR_TOOLSET "v142" CACHE STRING "Toolset version")
-
-set(compile_options
-		/std:c++20
-		/bigobj
-		/EHsc
-		/MP
-		/utf-8
-		/Zi # generate debug info
-)
+set(DIALUP_PATH "$ENV{LOCALAPPDATA}/DialUpFramework")
+set(DIALUP_PLUGINS_PATH "${DIALUP_PATH}/plugin")
 
 set(CMAKE_PREFIX_PATH
-		"$ENV{LOCALAPPDATA}/DialUpFramework"
-		"$ENV{LOCALAPPDATA}/DialUpFramework/sdk"
+		"${DIALUP_PATH}"
+		"${DIALUP_PLUGIN_PATH}/AIM"
+		"${DIALUP_PATH}/sdk"
 )
-find_package(DialUpFramework REQUIRED)
+
+include("${DIALUP_PATH}/SupportedTerminal.cmake")
+include("${DIALUP_PATH}/Toolchain.cmake")
+
+project(Toast VERSION 1.0 LANGUAGES CXX)
+
+set(INSTALL_DIR "${DIALUP_PLUGINS_PATH}/${PROJECT_NAME}")
+set(CMAKE_INSTALL_PREFIX"${INSTALL_DIR}" CACHE PATH "Default install path" FORCE)
 
 option(DEPLOY_TO_DEV "Copy plugin and PDB to dev plugins folder after build" ON)
-
-find_package(RLSDK REQUIRED)
-
-get_target_property(lib RLSDK::RLSDK IMPORTED_IMPLIB_RELWITHDEBINFO)
-if(lib)
-	set_target_properties(RLSDK::RLSDK PROPERTIES IMPORTED_IMPLIB "${lib}")
-endif()
-
-get_target_property(lib DialUpFramework::DialUpFramework IMPORTED_IMPLIB_RELWITHDEBINFO)
-if(lib)
-	set_target_properties(DialUpFramework::DialUpFramework PROPERTIES IMPORTED_IMPLIB "${lib}")
-endif()
 
 set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/${PROJECT_NAME}.cpp
 )
 
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+include("${DIALUP_PATH}/EnsureABI.cmake")
+
 set(INCLUDES
 	${CMAKE_SOURCE_DIR}/src
 	${CMAKE_SOURCE_DIR}/include
-    $ENV{LOCALAPPDATA}/DialUpFramework/include
-	$ENV{LOCALAPPDATA}/DialUpFramework/plugin/AIM/include
 )
 
-dialup_setup_plugin(${PROJECT_NAME}
-		SOURCES ${SOURCES}
-		INCLUDES ${INCLUDES}
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${INCLUDES}
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE RLSDK::RLSDK)
+find_package(DialUpFramework REQUIRED)
+find_package(AIM REQUIRED)
+find_package(RLSDK REQUIRED)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE DialUpFramework::DialUpFramework)
+target_link_libraries(${PROJECT_NAME} PRIVATE AIM::AIM)
+target_link_libraries(${PROJECT_NAME} PRIVATE RLSDK::RLSDK)
+
+#dialup_setup_plugin(${PROJECT_NAME}
+#		SOURCES ${SOURCES}
+#		INCLUDES ${INCLUDES}
+#)
