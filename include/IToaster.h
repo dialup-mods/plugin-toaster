@@ -1,8 +1,13 @@
 #pragma once
 #include "IModule.h"
 
+#ifdef TOAST_BUILD
+    #define TOAST_API __declspec(dllexport)
+#else
+    #define TOAST_API __declspec(dllimport)
+#endif
 
-class DIALUP_API IToaster : public IModule {
+class TOAST_API IToaster : public IModule {
     AIM_INJECTABLE(IToaster)
 
     virtual void toast() = 0;
