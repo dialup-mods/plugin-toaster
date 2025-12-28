@@ -1,11 +1,8 @@
 #pragma once
-#include <string>
-
 #include "IModule.h"
 
-class UNotificationManager_TA;
 
-class DIALUP_API IToaster : IModule {
+class DIALUP_API IToaster : public IModule {
     AIM_INJECTABLE(IToaster)
 
     virtual void toast() = 0;

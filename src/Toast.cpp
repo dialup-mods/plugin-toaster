@@ -49,14 +49,10 @@ class Toast : public PluginBase<Toast> {
         printf("Toaster startup called\n");
 
         registerModule(
-            ModuleDefinition<IToaster>()
-            .withFactory([](Resolver& r) {
-                auto t = std::make_shared<Toaster>();
-                t->__inject_objectProvider(r.resolve<IObjectProvider>());
-                t->__inject_processEvent(r.resolve<IProcessEvent>());
-                t->__inject_taskBuilder(r.resolve<ITaskBuilder>());
-                return t;
-            })
+            ModuleDefinition<Toaster>()
+            .withDependency(&Toaster::__inject_objectProvider, "[default]")
+            .withDependency(&Toaster::__inject_processEvent, "[default]")
+            .withDependency(&Toaster::__inject_taskBuilder, "[default]")
             .asSingleton()
         );
 

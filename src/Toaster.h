@@ -27,6 +27,7 @@ class Toaster : public IToaster {
         }
     }
 
+private:
     void showToast_SEH(UNotificationManager_TA* mgr, const std::wstring& title, const std::wstring& content, const int duration) {
         __try {
             auto* toaster = mgr->PopUpOnlyNotification(UGenericNotification_TA::StaticClass());
