@@ -1,15 +1,13 @@
 #pragma once
-#include "IModule.h"
+#include "IPlugin.h"
+class FString;
 
-#ifdef TOAST_BUILD
-    #define TOAST_API __declspec(dllexport)
-#else
-    #define TOAST_API __declspec(dllimport)
-#endif
+class IToaster : public IPlugin {
+public:
+    virtual ~IToaster() = default;
 
-class TOAST_API IToaster : public IModule {
+private:
     AIM_INJECTABLE(IToaster)
 
-    virtual void toast() = 0;
+    virtual void toast(const FString& title, const FString& content, int duration = 5) = 0;
 };
-//virtual void toast(const std::wstring& title, const std::wstring& content, const int duration = 5) = 0;
