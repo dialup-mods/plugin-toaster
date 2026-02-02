@@ -1,8 +1,8 @@
 #pragma once
-#include "IPlugin.h"
+#include "v1/IModule.h"
 class FString;
 
-class IToaster : public IPlugin {
+class IToaster : public IModule {
 public:
     virtual ~IToaster() = default;
 

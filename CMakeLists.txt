@@ -13,6 +13,7 @@ set(SOURCES
 set(INCLUDES
 		${CMAKE_SOURCE_DIR}
 		${CMAKE_SOURCE_DIR}/include
+		${DIALUP_INSTALL_DIR}/include/external
 		${DIALUP_INSTALL_DIR}/sdk-plugin/include
 )
 
@@ -26,7 +27,9 @@ dialup_setup_module(${PROJECT_NAME}
 
 find_package(DialUp REQUIRED PATHS ${DIALUP_INSTALL_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE DialUp::DialUp)
-find_package(DialUp-SDK REQUIRED PATHS ${DIALUP_INSTALL_DIR})
+find_package(AIM REQUIRED PATHS ${DIALUP_INSTALL_DIR}/plugin/aim)
+target_link_libraries(${PROJECT_NAME} PRIVATE AIM::AIM)
+find_package(DialUp-SDK REQUIRED PATHS ${DIALUP_INSTALL_DIR}/sdk-plugin)
 target_link_libraries(${PROJECT_NAME} PRIVATE DialUp-SDK::DialUp-SDK)
 
 target_include_directories(${PROJECT_NAME}
