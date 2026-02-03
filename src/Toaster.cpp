@@ -4,7 +4,7 @@
 extern "C" __declspec(dllexport) void*
 create() {
     printf("load() called\n");
-    return new Toaster();
+    return new ToastPlugin();
 }
 
 extern "C" __declspec(dllexport) void
