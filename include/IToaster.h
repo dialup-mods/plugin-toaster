@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #include "IModule.h"
 class FString;
 
@@ -9,6 +11,6 @@ public:
 private:
     AIM_INJECTABLE(IToaster)
 
-    virtual void toast(const FString& title, const FString& content, int duration = 5) = 0;
+    virtual void toast(const std::wstring& title, const std::wstring& content) = 0;
     virtual void test() = 0;
 };

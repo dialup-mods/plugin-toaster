@@ -11,30 +11,30 @@ set(SOURCES
 )
 
 set(INCLUDES
-		${CMAKE_SOURCE_DIR}
-		${CMAKE_SOURCE_DIR}/include
-		${DIALUP_INSTALL_DIR}/include
-		${DIALUP_INSTALL_DIR}/include/v1
-		${DIALUP_INSTALL_DIR}/include/external
-		${DIALUP_INSTALL_DIR}/sdk-plugin/include
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/include
+    ${DIALUP_INSTALL_DIR}/include
+    ${DIALUP_INSTALL_DIR}/include/v1
+    ${DIALUP_INSTALL_DIR}/include/external
+    ${DIALUP_INSTALL_DIR}/sdk-plugin/include
 )
 
 include("${DIALUP_INSTALL_DIR}/build-tools/Plugin.cmake")
 
 dialup_setup_module(${PROJECT_NAME}
-		SOURCES ${SOURCES}
-		INCLUDES ${INCLUDES}
-		DESTINATION "plugin/${PROJECT_NAME}"
+    SOURCES ${SOURCES}
+    INCLUDES ${INCLUDES}
+    DESTINATION "plugin/${PROJECT_NAME}"
 )
 
 
 install(FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/build/${PROJECT_NAME}.dll
-		DESTINATION ${GAME_BINARY_PATH})
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/${PROJECT_NAME}.dll
+    DESTINATION ${GAME_BINARY_PATH})
 
 install(FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/build/${PROJECT_NAME}.pdb
-		DESTINATION ${GAME_BINARY_PATH})
+    ${CMAKE_CURRENT_SOURCE_DIR}/build/${PROJECT_NAME}.pdb
+    DESTINATION ${GAME_BINARY_PATH})
 
 find_package(DialUp REQUIRED PATHS ${DIALUP_INSTALL_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE DialUp::DialUp)
@@ -43,21 +43,12 @@ get_target_property(_type DialUp::DialUp TYPE)
 get_target_property(_loc  DialUp::DialUp IMPORTED_LOCATION)
 get_target_property(_impl DialUp::DialUp IMPORTED_IMPLIB)
 
-message(STATUS "dialup::dialup TYPE             = ${_type}")
-message(STATUS "dialup::dialup IMPORTED_LOCATION = ${_loc}")
-message(STATUS "dialup::dialup IMPORTED_IMPLIB   = ${_impl}")
-
-
 find_package(AIM REQUIRED PATHS ${DIALUP_INSTALL_DIR}/plugin/aim)
 target_link_libraries(${PROJECT_NAME} PRIVATE AIM::AIM)
 
 get_target_property(_type AIM::AIM TYPE)
 get_target_property(_loc  AIM::AIM IMPORTED_LOCATION)
 get_target_property(_impl AIM::AIM IMPORTED_IMPLIB)
-
-message(STATUS "AIM::AIM TYPE             = ${_type}")
-message(STATUS "AIM::AIM IMPORTED_LOCATION = ${_loc}")
-message(STATUS "AIM::AIM IMPORTED_IMPLIB   = ${_impl}")
 
 find_package(DialUp-SDK REQUIRED PATHS ${DIALUP_INSTALL_DIR}/sdk-plugin)
 target_link_libraries(${PROJECT_NAME} PRIVATE DialUp-SDK::DialUp-SDK)
