@@ -21,7 +21,7 @@ class Toaster : public IToaster {
 
     void toast(const std::wstring& title, const std::wstring& body) override {
         printf("\nToaster::toast() is toasting!!\n\n");
-        processEvent_->enableTask(
+        processEvent_->registerTask(
             TaskBuilder()
                 .name("Toast")
                 .functionName("Function Engine.HUD.PostRender")
